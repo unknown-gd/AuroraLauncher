@@ -5,6 +5,7 @@ import { Service } from "typedi";
 import { WebRequest } from "../WebRequest";
 import { WebResponse } from "../WebResponse";
 import { AbstractRequest } from "./AbstractRequest";
+import { SkinManager } from "../../../skin";
 
 @Service()
 export class InjectorWebRequest extends AbstractRequest {
@@ -19,13 +20,14 @@ export class InjectorWebRequest extends AbstractRequest {
     }
 
     async emit(_: WebRequest, res: WebResponse): Promise<void> {
+        const skinManeger = new SkinManager(this.configManager.config.skin);
         res.json({
             meta: {
                 serverName: this.configManager.config.projectName || "Aurora Launcher",
                 implementationName: "aurora-launchserver",
                 implementationVersion: "0.0.1",
             },
-            skinDomains: this.configManager.config.api.injector.skinDomains,
+            skinDomains: [skinManeger.getDomenUrl()],
             signaturePublickey: this.authlibManager.getPublicKey(),
         });
     }
