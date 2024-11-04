@@ -1,12 +1,10 @@
-import { LauncherServerConfig } from "@root/components/config/utils/LauncherServerConfig";
+import { SkinConfig } from "../config/utils/SkinConfig";
 
 export class SkinManager {
     private skinUrl: string;
     private capeUrl: string;
 
-    constructor(
-        skin: LauncherServerConfig["skin"],
-    ) {
+    constructor(skin: SkinConfig) {
         this.skinUrl = skin.skinUrl;
         this.capeUrl = skin.capeUrl;
     }
@@ -19,7 +17,7 @@ export class SkinManager {
         return this.capeUrl.replace("{uuid}", uuid).replace("{username}", username);
     }
 
-    getDomenUrl() {
+    getDomainUrl() {
         return new URL(this.skinUrl).hostname;
     }
 }
