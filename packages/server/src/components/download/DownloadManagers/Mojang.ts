@@ -64,7 +64,7 @@ export class MojangManager extends AbstractDownloadManager {
 
         try {
             await mkdir(clientDirPath);
-        } catch (err) {
+        } catch {
             return LogHelper.error(this.langManager.getTranslate.DownloadManager.dirExist);
         }
 
