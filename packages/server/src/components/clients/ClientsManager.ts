@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import { join } from "path";
 
+import { Worker, isMainThread, parentPort, workerData } from "worker_threads";
 import { HashHelper, HashedFile } from "@aurora-launcher/core";
 import { LogHelper, StorageHelper } from "@root/utils";
 import { Service } from "typedi";
@@ -11,18 +12,15 @@ import { LangManager } from "../langs";
 export class ClientsManager {
     readonly hashedClients = new Map<string, HashedFile[]>();
 
-    constructor(private readonly langManager: LangManager, client?:string) {
-        this.hashClients(client);
+    constructor(private readonly langManager: LangManager) {
+        this.hashClients();
     }
 
-    async hashClients(client?:string): Promise<void> {
+    async hashClients(): Promise<void> {
         const folders = await fs.readdir(StorageHelper.clientsDir, {
             withFileTypes: true,
         });
-        let dirs = folders.filter((folder) => folder.isDirectory());
-        if (client!== undefined) {
-            dirs = folders.filter((folder) => folder.name == client);
-        }
+        const dirs = folders.filter((folder) => folder.isDirectory());
 
         if (dirs.length === 0) {
             return LogHelper.info(this.langManager.getTranslate.ClientsManager.syncSkip);
@@ -30,27 +28,48 @@ export class ClientsManager {
 
         LogHelper.info(this.langManager.getTranslate.ClientsManager.sync);
 
-        const tasks = dirs.map((folder) => async () => {
-            const startTime = Date.now();
-            const hashedFiles = await this.hashDir(join(StorageHelper.clientsDir, folder.name));
+        const promises = dirs.map((folder) =>
+            this.hashClientFolder(folder.name)
+        );
 
-            this.hashedClients.set(folder.name, hashedFiles);
-
-            LogHelper.info(
-                this.langManager.getTranslate.ClientsManager.syncTime,
-                folder.name,
-                Date.now() - startTime,
-            );
-        });
-
-        await Promise.all(tasks.map((task) => task()));
+        await Promise.all(promises);
 
         LogHelper.info(this.langManager.getTranslate.ClientsManager.syncEnd);
     }
 
-    private async hashDir(dirPath: string): Promise<HashedFile[]> {
-        const entries = await fs.readdir(dirPath, { withFileTypes: true });
 
+    private hashClientFolder(folderName: string): Promise<void> {
+        return new Promise((resolve, reject) => {
+            const startTime = Date.now();
+
+            const worker = new Worker(__filename, {
+                workerData: {
+                    dirPath: join(StorageHelper.clientsDir, folderName),
+                },
+            });
+
+            worker.on("message", (hashedFiles: HashedFile[]) => {
+                this.hashedClients.set(folderName, hashedFiles);
+
+                LogHelper.info(
+                    this.langManager.getTranslate.ClientsManager.syncTime,
+                    folderName,
+                    Date.now() - startTime,
+                );
+                resolve();
+            });
+
+            worker.on("error", (error) => reject(error));
+            worker.on("exit", (code) => {
+                if (code !== 0) {
+                    reject(new Error(`Worker stopped with exit code ${code}`));
+                }
+            });
+        });
+    }
+
+    static async hashDir(dirPath: string): Promise<HashedFile[]> {
+        const entries = await fs.readdir(dirPath, { withFileTypes: true });
         const arrayOfFiles: HashedFile[] = [];
 
         for (const entry of entries) {
@@ -65,7 +84,7 @@ export class ClientsManager {
         return arrayOfFiles;
     }
 
-    async hashFile(path: string): Promise<HashedFile> {
+    static async hashFile(path: string): Promise<HashedFile> {
         const size = (await fs.stat(path)).size;
 
         return {
@@ -74,4 +93,12 @@ export class ClientsManager {
             sha1: await HashHelper.getHashFromFile(path, "sha1"),
         };
     }
+}
+
+if (!isMainThread) {
+    const { dirPath } = workerData;
+
+    ClientsManager.hashDir(dirPath).then((hashedFiles) => {
+        parentPort?.postMessage(hashedFiles);
+    });
 }
