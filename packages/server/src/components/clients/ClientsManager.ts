@@ -12,15 +12,18 @@ import { LangManager } from "../langs";
 export class ClientsManager {
     readonly hashedClients = new Map<string, HashedFile[]>();
 
-    constructor(private readonly langManager: LangManager) {
-        this.hashClients();
+    constructor(private readonly langManager: LangManager, client?: string) {
+        this.hashClients(client);
     }
 
-    async hashClients(): Promise<void> {
+    async hashClients(client?: string): Promise<void> {
         const folders = await fs.readdir(StorageHelper.clientsDir, {
             withFileTypes: true,
         });
-        const dirs = folders.filter((folder) => folder.isDirectory());
+
+        const dirs = client !== undefined
+            ? folders.filter((folder) => folder.name == client)
+            : folders.filter((folder) => folder.isDirectory());
 
         if (dirs.length === 0) {
             return LogHelper.info(this.langManager.getTranslate.ClientsManager.syncSkip);
