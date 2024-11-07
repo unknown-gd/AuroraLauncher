@@ -27,13 +27,10 @@ export class LogHelper {
         this.isDevEnabled;
 
     private static getLogFilePath(): string {
-        const dateStr = new Date()
-            .toISOString()
-            .slice(0, 19)
-            .replace(/[-:]/g, ".")
-            .replace("T", "-");
-
-        return resolve(StorageHelper.logsDir, `LauncherServer-${dateStr}.log`);
+        return resolve(
+            StorageHelper.logsDir,
+            `LauncherServer_${this.getFormatedDate().replace(" ", "_").replace(/:/g, "-")}.log`,
+        );
     }
 
     private static readonly logFileStream = createWriteStream(LogHelper.getLogFilePath(), {
@@ -71,9 +68,13 @@ export class LogHelper {
         this.saveLog(msg + EOL);
     }
 
+    private static getFormatedDate() {
+        return new Date().toISOString().replace("T", " ").slice(0, -5);
+    }
+
     private static log(level: keyof typeof LOG_LEVELS, msg: any, ...args: any[]) {
         const coloredStr = [
-            chalk.gray(new Date().toISOString().replace("T", " ").split(".")[0]),
+            chalk.gray(this.getFormatedDate()),
             LOG_LEVELS[level](` [${level}] `),
             msg,
         ].join("");
