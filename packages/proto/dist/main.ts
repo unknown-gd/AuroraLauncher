@@ -78,10 +78,10 @@ export interface ProfileLibrary {
 
 export interface LibraryRule {
   action: string;
-  os?: OS | undefined;
+  os?: SystemOs | undefined;
 }
 
-export interface OS {
+export interface SystemOs {
   name: string;
   arch?: string | undefined;
   version?: string | undefined;
@@ -868,7 +868,7 @@ export const LibraryRule = {
       writer.uint32(10).string(message.action);
     }
     if (message.os !== undefined) {
-      OS.encode(message.os, writer.uint32(18).fork()).ldelim();
+      SystemOs.encode(message.os, writer.uint32(18).fork()).ldelim();
     }
     return writer;
   },
@@ -892,7 +892,7 @@ export const LibraryRule = {
             break;
           }
 
-          message.os = OS.decode(reader, reader.uint32());
+          message.os = SystemOs.decode(reader, reader.uint32());
           continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
@@ -909,17 +909,17 @@ export const LibraryRule = {
   fromPartial(object: DeepPartial<LibraryRule>): LibraryRule {
     const message = createBaseLibraryRule();
     message.action = object.action ?? "";
-    message.os = (object.os !== undefined && object.os !== null) ? OS.fromPartial(object.os) : undefined;
+    message.os = (object.os !== undefined && object.os !== null) ? SystemOs.fromPartial(object.os) : undefined;
     return message;
   },
 };
 
-function createBaseOS(): OS {
+function createBaseSystemOs(): SystemOs {
   return { name: "", arch: undefined, version: undefined };
 }
 
-export const OS = {
-  encode(message: OS, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+export const SystemOs = {
+  encode(message: SystemOs, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.name !== "") {
       writer.uint32(10).string(message.name);
     }
@@ -932,10 +932,10 @@ export const OS = {
     return writer;
   },
 
-  decode(input: _m0.Reader | Uint8Array, length?: number): OS {
+  decode(input: _m0.Reader | Uint8Array, length?: number): SystemOs {
     const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseOS();
+    const message = createBaseSystemOs();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -969,11 +969,11 @@ export const OS = {
     return message;
   },
 
-  create(base?: DeepPartial<OS>): OS {
-    return OS.fromPartial(base ?? {});
+  create(base?: DeepPartial<SystemOs>): SystemOs {
+    return SystemOs.fromPartial(base ?? {});
   },
-  fromPartial(object: DeepPartial<OS>): OS {
-    const message = createBaseOS();
+  fromPartial(object: DeepPartial<SystemOs>): SystemOs {
+    const message = createBaseSystemOs();
     message.name = object.name ?? "";
     message.arch = object.arch ?? undefined;
     message.version = object.version ?? undefined;

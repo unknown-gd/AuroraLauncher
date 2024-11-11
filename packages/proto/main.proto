@@ -71,9 +71,9 @@ message ProfileLibrary {
 }
 message LibraryRule {
   string action = 1;
-  optional OS os = 2;
+  optional SystemOs os = 2;
 }
-message OS {
+message SystemOs {
   string name = 1;
   optional string arch = 2;
   optional string version = 3;
