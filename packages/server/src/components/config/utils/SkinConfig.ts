@@ -4,8 +4,8 @@ export class SkinConfig {
 
     static getDefaultConfig(): SkinConfig {
         return {
-            skinUrl: "https://crafthead.net/skin/{username}",
-            capeUrl: "https://crafthead.net/cape/{username}",
+            skinUrl: "https://skins.danielraybone.com/v1/skin/{username}",
+            capeUrl: "https://skins.danielraybone.com/v1/cape/{username}",
         };
     }
 }
