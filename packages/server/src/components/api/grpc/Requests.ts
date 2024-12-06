@@ -6,7 +6,7 @@ import type { AuthProvider } from "@root/components/auth/providers";
 import { ProfilesManager } from "@root/components/profiles";
 import { ClientsManager } from "@root/components/clients";
 import { VerifyManager } from "@root/components/secure/VerifyManager";
-import { token } from "./Token";
+import { TokenManager } from "./Token";
 
 @Service()
 export class ServiceImpl implements proto.AuroraLauncherServiceImplementation {
@@ -15,6 +15,7 @@ export class ServiceImpl implements proto.AuroraLauncherServiceImplementation {
         private profilesManager: ProfilesManager, 
         private clientsManager: ClientsManager,
         private verifyManager: VerifyManager,
+        private tokenManager: TokenManager,
     ) {}
 
     async auth(
@@ -69,7 +70,7 @@ export class ServiceImpl implements proto.AuroraLauncherServiceImplementation {
 
     async getToken(
     ): Promise<proto.DeepPartial<proto.VerifyResponse>> {
-        const res = {token: this.verifyManager.encryptToken(token)};
+        const res = {token: this.tokenManager.getEncryptedToken()};
         return res
     }
   }

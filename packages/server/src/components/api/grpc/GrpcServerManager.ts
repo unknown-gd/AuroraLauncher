@@ -7,7 +7,7 @@ import { Service } from "typedi";
 import { readFileSync, existsSync } from "fs";
 import * as proto from "@aurora-launcher/proto";
 import { ServiceImpl } from "./Requests";
-import { token } from "./Token";
+import { TokenManager } from "./Token";
 
 import { isAbortError } from 'abort-controller-x';
 
@@ -20,6 +20,7 @@ export class GrpcServerManager {
         private argsManager: ArgsManager,
         private config: ConfigManager,
         private verifyManager: VerifyManager,
+        private tokenManager: TokenManager,
     ) {
         const { host, port } = this.argsManager.args;
         async function* loggingMiddleware<Request, Response>(
@@ -62,10 +63,10 @@ export class GrpcServerManager {
             let decryptedToken
             try {
                 decryptedToken = verifyManager.decryptToken(authorization)
-            } catch(error) {
+            } catch {
                 throw new ServerError(Status.UNAUTHENTICATED, "Token not found");
             }
-            if (decryptedToken == token){
+            if (decryptedToken == tokenManager.getToken()) {
                 return yield* call.next(call.request, context);
             }
             else throw new ServerError(Status.UNAUTHENTICATED, "Invalid token");

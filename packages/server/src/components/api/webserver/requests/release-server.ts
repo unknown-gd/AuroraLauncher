@@ -2,12 +2,13 @@ import { FastifyInstance } from "fastify";
 import multipart from '@fastify/multipart';
 import { writeFileSync } from "fs";
 import { resolve } from "path";
-import { SecureHelper } from "@root/utils";
 import { StorageHelper } from "@root/utils/helpers/StorageHelper";
 import { VerifyManager } from "@root/components/secure/VerifyManager";
+import { TokenManager } from "../Token";
 
 interface Options {
     verifyManager: VerifyManager
+    tokenManager: TokenManager
 }
 
 interface IQuerystring {
@@ -15,18 +16,15 @@ interface IQuerystring {
 }
 
 async function relaseServerRoutes(fastify: FastifyInstance, opts: Options) {
-    const token = SecureHelper.generateRandomToken(32)
-
     fastify.register(multipart);
 
     fastify.get('/release/get_token', async (req, reply) => {
-        const encryptedToken = opts.verifyManager.encryptToken(token)
-        reply.send({token: encryptedToken});
+        reply.send({token: opts.tokenManager.getEncryptedToken()})
     });
 
     fastify.post<{Querystring: IQuerystring}>('/release/upload', async (req, reply) => {
         const decryptedToken = opts.verifyManager.decryptToken(req.query.encryptedToken)
-        if ( decryptedToken == token){
+        if (decryptedToken == opts.tokenManager.getToken()) {
             const data = await req.file({ limits: { fileSize: 314572800 } }) // 300MB
             writeFileSync(resolve(StorageHelper.releaseDir, data.fieldname), await data.toBuffer())
             reply.status(200)

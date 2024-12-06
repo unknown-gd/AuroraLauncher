@@ -4,6 +4,7 @@ import { ConfigManager } from "@root/components/config";
 import type { AuthProvider } from "@root/components/auth/providers";
 import { UUIDHelper } from "@root/utils";
 import { JsonHelper } from "@aurora-launcher/core";
+import { SkinManager } from "@root/components/skin";
 
 interface Options {
     configManager: ConfigManager,
@@ -33,13 +34,14 @@ interface QueryProfile{
 async function authlibRoutes(fastify: FastifyInstance, opts: Options) {
 
     fastify.get('/authlib', async (req, reply) => {
+        const skinManeger = new SkinManager(opts.configManager.config.skin);
         reply.send({
             meta: {
                 serverName: opts.configManager.config.projectName || "Aurora Launcher",
                 implementationName: "aurora-launchserver",
                 implementationVersion: "0.0.1",
             },
-            skinDomains: opts.configManager.config.api.injector.skinDomains,
+            skinDomains: [skinManeger.getDomainUrl()],
             signaturePublickey: opts.authlibManager.getPublicKey(),
         });
     });
@@ -140,7 +142,7 @@ async function authlibRoutes(fastify: FastifyInstance, opts: Options) {
                 },
             ],
         };
-        if (req.query.unsigned) data.properties[0].signature = this.authlibManager.getSignature(texturesValue);
+        if (req.query.unsigned) data.properties[0].signature = opts.authlibManager.getSignature(texturesValue);
         reply.send(data);
     });
 }

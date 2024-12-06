@@ -12,6 +12,7 @@ import { LogHelper } from "@root/utils";
 import genericRoutes from "./requests/generic";
 import authlibRoutes from "./requests/authlib";
 import releaseServerRoutes from "./requests/release-server";
+import { TokenManager } from './Token';
 
 @Service()
 export class WebServerManager {
@@ -23,6 +24,7 @@ export class WebServerManager {
         private readonly argsManager: ArgsManager,
         private readonly authlibManager: AuthlibManager,
         private readonly verifyManager: VerifyManager,
+        private tokenManager: TokenManager,
     ) {
         const { host, port } = this.argsManager.args;
         let options = null;
@@ -58,6 +60,7 @@ export class WebServerManager {
         });
         web.register(releaseServerRoutes, {
             verifyManager: this.verifyManager,
+            tokenManager: this.tokenManager,
         });
 
         web.ready();
