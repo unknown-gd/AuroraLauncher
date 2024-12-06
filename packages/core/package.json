@@ -7,16 +7,16 @@
     "module": "./dist/index.mjs",
     "types": "./dist/types/index.d.ts",
     "exports": {
+        "types": "./dist/types/index.d.ts",
         "import": "./dist/index.mjs",
-        "require": "./dist/index.js",
-        "types": "./dist/types/index.d.ts"
+        "require": "./dist/index.js"
     },
     "scripts": {
         "dev": "tsup --watch",
         "build": "tsup",
         "prettier": "prettier --write src",
-        "lint": "eslint . --ext .ts",
-        "lint:fix": "npm run lint -- --fix",
+        "lint": "eslint",
+        "lint:fix": "eslint --fix",
         "prepublishOnly": "npm run build"
     },
     "repository": {
@@ -43,21 +43,22 @@
         "src"
     ],
     "devDependencies": {
-        "@tsconfig/node20": "^20.1.2",
-        "@tsconfig/strictest": "^2.0.3",
-        "@types/node": "^20.11.24",
-        "@typescript-eslint/eslint-plugin": "^7.1.1",
-        "@typescript-eslint/parser": "^7.1.1",
-        "eslint": "^8.56.0",
+        "@eslint/js": "^9.14.0",
+        "@tsconfig/node20": "^20.1.4",
+        "@tsconfig/strictest": "^2.0.5",
+        "@types/node": "^22.9.0",
+        "eslint": "^9.14.0",
+        "globals": "^15.12.0",
         "import-sort-style-module": "^6.0.0",
-        "prettier": "^3.2.5",
+        "prettier": "^3.3.3",
         "prettier-plugin-import-sort": "0.0.7",
-        "tsup": "^8.0.2",
-        "typescript": "^5.3.3"
+        "tsup": "^8.3.5",
+        "typescript": "^5.6.3",
+        "typescript-eslint": "^8.13.0"
     },
     "dependencies": {
-        "adm-zip": "^0.5.10",
-        "p-map": "^7.0.1",
-        "undici": "^6.7.0"
+        "adm-zip": "^0.5.16",
+        "p-map": "^7.0.2",
+        "undici": "^6.20.1"
     }
 }
