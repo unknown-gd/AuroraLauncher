@@ -1,8 +1,7 @@
 name: LaunchServer - PreRelease Build
 
 on:
-  push:
-    branches: [testing]
+  push: *
 
 jobs:
   build:
