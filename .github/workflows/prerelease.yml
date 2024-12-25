@@ -37,9 +37,7 @@ jobs:
           prerelease: true
           files: |
             packages/server/dist/LauncherServer.js
-            packages/server/dist/LauncherServer-win.exe
-            packages/server/dist/LauncherServer-linux
-            packages/server/dist/LauncherServer-macos
+            packages/server/dist/LauncherServer
 
       - name: Upload new version to storage
         uses: easingthemes/ssh-deploy@main
